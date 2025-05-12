@@ -19,4 +19,8 @@ public class Category {
     @NotBlank(message = "El nombre de la categoría es obligatorio")
     @Column(unique = true)
     private String name;
+
+    public Category(String name) {
+        this.name = name;
+    }
 }

@@ -49,6 +49,5 @@ public class Course {
     @Column(name = "tag")
     private List<@Size(min = 1, max = 20) String> tags;
 
-    @PastOrPresent
-    private LocalDateTime createdAt = LocalDateTime.now();
+
 }

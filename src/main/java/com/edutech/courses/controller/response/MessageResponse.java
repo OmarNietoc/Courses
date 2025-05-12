@@ -1,4 +1,4 @@
-package com.edutech.usuarios.controller.response;
+package com.edutech.courses.controller.response;
 
 import lombok.*;
 
