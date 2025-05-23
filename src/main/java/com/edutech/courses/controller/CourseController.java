@@ -16,6 +16,7 @@ import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,10 +32,19 @@ public class CourseController {
     private final CourseService courseService;
 
 
-
     @GetMapping
-    public List<Course> getAllCourses() {
-        return courseService.getAllCourses();
+    public ResponseEntity<?> getCourses(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Long levelId) {
+
+        Page<Course> courses = courseService.getCourses(page, size, categoryId, levelId);
+        List<Course> content = courses.getContent();
+        if (content.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(content);
     }
 
     @GetMapping("/{id}")

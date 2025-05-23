@@ -14,9 +14,14 @@ import com.edutech.courses.controller.response.MessageResponse;
 import feign.FeignException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +35,21 @@ public class CourseService {
     private final LevelService levelService;
     private final UserClient userClient;
     private final InstructorValidatorService instructorValidatorService;
+
+    public Page<Course> getCourses(Integer page, Integer size, Long categoryId, Long levelId) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+
+        if (categoryId != null && levelId != null) {
+            return courseRepository.findByCategoryIdAndLevelId(categoryId, levelId, pageable);
+        } else if (categoryId != null) {
+            return courseRepository.findByCategoryId(categoryId, pageable);
+        } else if (levelId != null) {
+            return courseRepository.findByLevelId(levelId, pageable);
+        } else {
+            return courseRepository.findAll(pageable);
+        }
+    }
+
 
     public List<Course> getAllCourses() {
         return courseRepository.findAll();
