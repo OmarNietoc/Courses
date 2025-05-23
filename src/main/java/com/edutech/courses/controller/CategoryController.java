@@ -3,71 +3,50 @@ package com.edutech.courses.controller;
 import com.edutech.courses.model.Category;
 import com.edutech.courses.repository.CategoryRepository;
 import com.edutech.courses.controller.response.MessageResponse;
+import com.edutech.courses.service.CategoryService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-
 @RestController
 @RequestMapping("/edutech/categories")
+@RequiredArgsConstructor
 public class CategoryController {
 
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
-    // GET: Listar todas las categorías
     @GetMapping
     public ResponseEntity<List<Category>> getAllCategories() {
-        return ResponseEntity.ok(categoryRepository.findAll());
+        return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
-    // GET: Obtener una categoría por ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCategoryById(@PathVariable Long id) {
-        Optional<Category> optionalCategory = categoryRepository.findById(id);
-        if (optionalCategory.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageResponse("Categoría con ID " + id + " no encontrada."));
-        }
-        return ResponseEntity.ok(optionalCategory.get());
+    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
+        return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
-    // POST: Crear nueva categoría
     @PostMapping
-    public ResponseEntity<?> createCategory(@Valid @RequestBody Category category) {
-        if (categoryRepository.existsByNameIgnoreCase(category.getName())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new MessageResponse("Ya existe una categoría con ese nombre."));
-        }
-
-        categoryRepository.save(category);
+    public ResponseEntity<MessageResponse> createCategory(@Valid @RequestBody Category category) {
+        categoryService.createCategory(category);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new MessageResponse("Categoría creada exitosamente."));
     }
 
-    // PUT: Actualizar categoría
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable Long id, @Valid @RequestBody Category updatedCategory) {
-        Optional<Category> optionalCategory = categoryRepository.findById(id);
-        if (optionalCategory.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new MessageResponse("Categoría con ID " + id + " no encontrada."));
-        }
-
-        // Verifica si ya existe otra categoría con ese nombre (ignorando mayúsculas/minúsculas)
-        boolean nombreEnUso = categoryRepository.existsByNameIgnoreCaseAndIdNot(updatedCategory.getName(), id);
-        if (nombreEnUso) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new MessageResponse("Ya existe otra categoría con ese nombre."));
-        }
-
-        Category category = optionalCategory.get();
-        category.setName(updatedCategory.getName());
-        categoryRepository.save(category);
-
+    public ResponseEntity<MessageResponse> updateCategory(@PathVariable Long id, @Valid @RequestBody Category category) {
+        categoryService.updateCategory(id, category);
         return ResponseEntity.ok(new MessageResponse("Categoría actualizada exitosamente."));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
+        categoryService.deleteCategory(id);
+        return ResponseEntity.ok(new MessageResponse("Categoría eliminada exitosamente."));
+    }
+
 }
+
