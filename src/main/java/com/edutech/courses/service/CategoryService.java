@@ -3,6 +3,7 @@ package com.edutech.courses.service;
 import com.edutech.courses.client.UserClient;
 import com.edutech.courses.dto.CourseDto;
 import com.edutech.courses.dto.UserResponseDto;
+import com.edutech.courses.exception.ConflictException;
 import com.edutech.courses.exception.ResourceNotFoundException;
 import com.edutech.courses.model.Category;
 import com.edutech.courses.model.Course;
@@ -56,7 +57,7 @@ public class CategoryService {
 
         boolean nombreEnUso = categoryRepository.existsByNameIgnoreCaseAndIdNot(updatedCategory.getName(), id);
         if (nombreEnUso) {
-            throw new IllegalArgumentException("Ya existe otra categoría con ese nombre.");
+            throw new ConflictException("Ya existe otra categoría con ese nombre.");
         }
 
         existing.setName(updatedCategory.getName());

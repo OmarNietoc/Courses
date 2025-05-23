@@ -1,5 +1,6 @@
 package com.edutech.courses.service;
 
+import com.edutech.courses.exception.ConflictException;
 import com.edutech.courses.exception.ResourceNotFoundException;
 import com.edutech.courses.model.Level;
 import com.edutech.courses.repository.CourseRepository;
@@ -42,9 +43,11 @@ public class LevelService {
     public void deleteLevel(Long id) {
         getLevelById(id);
         if(courseRepository.existsCoursesByLevelId(id)){
-            throw new IllegalStateException("No se puede eliminar el nivel porque hay cursos asociados a este.");
+            throw new ConflictException("No se puede eliminar el nivel porque hay cursos asociados a este.");
         }
+        else {
         levelRepository.deleteById(id);
+        }
     }
 
 }
