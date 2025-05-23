@@ -1,6 +1,8 @@
 package com.edutech.courses.controller;
 
+import com.edutech.courses.client.UserClient;
 import com.edutech.courses.dto.CourseDto;
+import com.edutech.courses.dto.UserResponseDto;
 import com.edutech.courses.model.Category;
 import com.edutech.courses.model.Course;
 import com.edutech.courses.controller.response.MessageResponse;
@@ -29,6 +31,9 @@ public class CourseController {
     private CategoryRepository categoryRepository;
     @Autowired
     private LevelRepository levelRepository;
+    @Autowired
+    private UserClient userClient;
+
 
     @GetMapping
     public List<Course> getAllCourses() {
@@ -62,6 +67,21 @@ public class CourseController {
             return ResponseEntity.badRequest().body(new MessageResponse("Nivel no válido."));
         }
 
+            // 👉 Validación del instructor
+            UserResponseDto instructor;
+            try {
+                instructor = userClient.getUserById(dto.getInstructorId());
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new MessageResponse("El usuario con ID " + dto.getInstructorId() + " no existe."));
+            }
+
+            if (instructor.getRole() == null ||
+                    !"INSTRUCTOR".equalsIgnoreCase(instructor.getRole().getName())) {
+                return ResponseEntity.badRequest()
+                        .body(new MessageResponse("El usuario con ID " + dto.getInstructorId() + " no tiene el rol de PROFESOR."));
+            }
+
 
 
             Course course = Course.builder()
@@ -83,21 +103,38 @@ public class CourseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MessageResponse> updateCourse(@PathVariable Long id, @Valid @RequestBody Course courseDetails) {
+    public ResponseEntity<MessageResponse> updateCourse(@PathVariable Long id, @Valid @RequestBody CourseDto courseDto) {
+
         return courseRepository.findById(id).map(course -> {
-            course.setTitle(courseDetails.getTitle());
-            course.setDescription(courseDetails.getDescription());
-            course.setPrice(courseDetails.getPrice());
-            course.setCategory(courseDetails.getCategory());
-            course.setLevel(courseDetails.getLevel());
-            course.setTags(courseDetails.getTags());
+
+            // Verificar que la categoría exista
+            Optional<Category> categoryOpt = categoryRepository.findById(courseDto.getCategoryId());
+            if (categoryOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new MessageResponse("La categoría con ID " + courseDto.getCategoryId() + " no existe."));
+            }
+
+            // Verificar que el nivel exista
+            Optional<Level> levelOpt = levelRepository.findById(courseDto.getLevelId());
+            if (levelOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new MessageResponse("El nivel con ID " + courseDto.getLevelId() + " no existe."));
+            }
+
+            // Actualizar campos
+            course.setTitle(courseDto.getTitle());
+            course.setDescription(courseDto.getDescription());
+            course.setPrice(courseDto.getPrice());
+            course.setCategory(categoryOpt.get());
+            course.setLevel(levelOpt.get());
+            course.setTags(courseDto.getTags());
+
             courseRepository.save(course);
+
             return ResponseEntity.ok(new MessageResponse("Curso actualizado correctamente."));
-        }).orElse(ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(MessageResponse.builder()
-                        .message("Curso con ID " + id + " no encontrado.")
-                        .build()));
+        }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new MessageResponse("Curso con ID " + id + " no encontrado.")));
+
     }
 
     @DeleteMapping("/{id}")

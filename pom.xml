@@ -33,6 +33,11 @@
 
 	<dependencies>
 
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+
 		<!-- Dependencia de Spring Boot para JPA con Jakarta -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
