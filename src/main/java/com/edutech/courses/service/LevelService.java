@@ -6,10 +6,12 @@ import com.edutech.courses.model.Level;
 import com.edutech.courses.repository.CourseRepository;
 import com.edutech.courses.repository.LevelRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -25,19 +27,43 @@ public class LevelService {
                 .orElseThrow(() -> new ResourceNotFoundException("Level no encontrado: "+ id ));
     }
 
+    public Level getLevelByName(String name) {
+        return levelRepository.findByNameIgnoreCase(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Level no encontrado: " + name));
+    }
+
     public List<Level> getAllLevels() {
         return levelRepository.findAll();
     }
 
+    public boolean validateLevelByName(String name) {
+        Optional <Level> existingLevel = levelRepository.findByNameIgnoreCase(name);
+        if (existingLevel.isPresent()) {
+            throw new IllegalArgumentException("Ya existe un level con ese nombre.");
+        }
+        return true;
+    }
+
     public void createLevel(Level level) {
-        levelRepository.save(level);
+
+        try {
+            if(validateLevelByName(level.getName())){
+                levelRepository.save(level);
+            }
+        } catch (DataIntegrityViolationException ex) {
+            throw new IllegalArgumentException("Ya existe un level con ese nombre.");
+        }
+
     }
 
     public void updateLevel(Long id, Level updatedLevel) {
         Level existingLevel = levelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Level no encontrado: " + id));
-        existingLevel.setName(updatedLevel.getName());
-        levelRepository.save(existingLevel);
+        if(validateLevelByName(updatedLevel.getName())){
+            existingLevel.setName(updatedLevel.getName());
+            levelRepository.save(existingLevel);
+        }
+
     }
 
     public void deleteLevel(Long id) {

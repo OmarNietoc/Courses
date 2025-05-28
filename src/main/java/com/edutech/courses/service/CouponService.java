@@ -31,16 +31,16 @@ public class CouponService {
     public Coupon getCouponById(Long id) {
 
         return couponRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Cupón no encontrado: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Error al usar cupón." + id));
     }
 
     public Coupon getCouponByCode(String code) {
         return couponRepository.findByCode(code)
-                .orElseThrow(() -> new ResourceNotFoundException("Cupón no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Error al usar cupón."));
     }
 
     public ResponseEntity<Coupon> createCoupon(BigDecimal discountAmount) {
-        String generatedCode = UUID.randomUUID().toString();
+        String generatedCode = UUID.randomUUID().toString().replace("-", "").substring(0, 9).toUpperCase();
 
         Coupon coupon = Coupon.builder()
                 .code(generatedCode)

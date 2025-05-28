@@ -1,7 +1,7 @@
 package com.edutech.courses.service;
 
 import com.edutech.courses.client.UserClient;
-import com.edutech.courses.dto.UserResponseDto;
+import com.edutech.courses.controller.response.UserResponseDto;
 import com.edutech.courses.exception.ResourceNotFoundException;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;

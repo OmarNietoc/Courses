@@ -1,32 +1,14 @@
 package com.edutech.courses.service;
 
-import com.edutech.courses.client.UserClient;
-import com.edutech.courses.dto.CourseDto;
-import com.edutech.courses.dto.UserResponseDto;
 import com.edutech.courses.exception.ConflictException;
 import com.edutech.courses.exception.ResourceNotFoundException;
 import com.edutech.courses.model.Category;
-import com.edutech.courses.model.Course;
-import com.edutech.courses.model.Level;
 import com.edutech.courses.repository.CategoryRepository;
 import com.edutech.courses.repository.CourseRepository;
-import com.edutech.courses.repository.LevelRepository;
-import com.edutech.courses.controller.response.MessageResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
-import com.edutech.courses.exception.ResourceNotFoundException;
-import com.edutech.courses.model.Course;
-import com.edutech.courses.repository.CategoryRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

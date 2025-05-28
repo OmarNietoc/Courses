@@ -31,7 +31,7 @@ public class LevelController {
     }
 
     // POST: Crear nivel
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<MessageResponse> createLevel(@Valid @RequestBody Level level) {
         levelService.createLevel(level);
         return ResponseEntity.status(HttpStatus.CREATED)

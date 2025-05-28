@@ -17,8 +17,9 @@ import java.time.LocalDateTime;
 public class EnrollmentResponse {
     private Long id;
     private Long userId;
-    private CourseResponse course;  // Nested DTO for Course
-    private CouponResponse coupon;  // Nested DTO for Coupon
+    private CourseResponse course;
+    private CouponResponse coupon;
     private BigDecimal finalPrice;
     private LocalDateTime enrollmentDate;
+    private Boolean active;
 }

@@ -39,4 +39,6 @@ public class Enrollment {
     @NotNull(message = "La fecha de inscripción es obligatoria")
     private LocalDateTime enrollmentDate;
 
+    private boolean active;
+
 }

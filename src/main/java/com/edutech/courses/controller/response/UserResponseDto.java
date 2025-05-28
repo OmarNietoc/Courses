@@ -1,5 +1,6 @@
-package com.edutech.courses.dto;
+package com.edutech.courses.controller.response;
 
+import com.edutech.courses.dto.RoleDto;
 import lombok.Data;
 
 @Data

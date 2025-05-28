@@ -90,7 +90,7 @@ public class DataLoader implements CommandLineRunner {
                 .build();
 
         List<Course> courses = courseRepository.saveAll(Arrays.asList(curso1, curso2, curso3, curso4, curso5));
-/*
+
 // Crear 12 cupones
         List<Coupon> coupons = new ArrayList<>();
         for (int i = 1; i <= 12; i++) {
@@ -102,7 +102,7 @@ public class DataLoader implements CommandLineRunner {
             coupons.add(coupon);
         }
         coupons = couponRepository.saveAll(coupons);
-
+/*
 // Crear 21 inscripciones
         List<Enrollment> enrollments = new ArrayList<>();
         for (int i = 1; i <= 21; i++) {

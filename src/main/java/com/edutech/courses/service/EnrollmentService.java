@@ -4,13 +4,12 @@ import com.edutech.courses.controller.response.CouponResponse;
 import com.edutech.courses.controller.response.CourseResponse;
 import com.edutech.courses.controller.response.EnrollmentResponse;
 import com.edutech.courses.dto.EnrollmentDto;
-import com.edutech.courses.dto.UserResponseDto;
+import com.edutech.courses.controller.response.UserResponseDto;
 import com.edutech.courses.exception.ResourceNotFoundException;
 import com.edutech.courses.model.*;
 import com.edutech.courses.repository.EnrollmentRepository;
 import com.edutech.courses.controller.response.MessageResponse;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,11 +28,16 @@ public class EnrollmentService {
     private final CouponService couponService;
     private final UserValidatorService userValidatorService;
 
-    public ResponseEntity<EnrollmentResponse> getEnrollmentById(Long id) {
-        Enrollment enrollment = enrollmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Inscripción no encontrada: " + id));
+    public ResponseEntity<EnrollmentResponse> getEnrollmentDtoById(Long id) {
+        Enrollment enrollment = getEnrollmentById(id);
         return ResponseEntity.ok(convertToDTO(enrollment));
     }
+
+    public Enrollment getEnrollmentById(Long id) {
+        return enrollmentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Inscripción no encontrada: " + id));
+    }
+
 
 
     public ResponseEntity<List<EnrollmentResponse>> getAllEnrollments() {
@@ -52,6 +55,7 @@ public class EnrollmentService {
                         convertCouponToResponse(enrollment.getCoupon()) : null)
                 .finalPrice(enrollment.getFinalPrice())
                 .enrollmentDate(enrollment.getEnrollmentDate())
+                .active(enrollment.isActive())
                 .build();
     }
 
@@ -73,25 +77,33 @@ public class EnrollmentService {
                 .id(coupon.getId())
                 .code(coupon.getCode())
                 .discountAmount(coupon.getDiscountAmount())
-                // Add other coupon fields
+                .active(coupon.isActive())
                 .build();
     }
 
     public ResponseEntity<MessageResponse> createEnrollment(@Valid EnrollmentDto dto) {
         Enrollment enrollment = buildEnrollmentFromDto(dto);
         enrollmentRepository.save(enrollment);
-        return ResponseEntity.ok(new MessageResponse("Inscripción creada exitosamente."));
+        return ResponseEntity.status(201).body(new MessageResponse("Inscripción creada exitosamente."));
     }
 
     public ResponseEntity<MessageResponse> updateEnrollment(Long id, @Valid EnrollmentDto dto) {
-        Enrollment existing = enrollmentRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Inscripción no encontrada: " + id));
-
+        Enrollment existing = getEnrollmentById(id);
         Enrollment updated = buildEnrollmentFromDto(dto);
         updated.setId(existing.getId());
         enrollmentRepository.save(updated);
 
         return ResponseEntity.ok(new MessageResponse("Inscripción actualizada exitosamente."));
+    }
+
+    public void updateEnrollmentStatusById(Long id, Boolean active){
+
+        Enrollment enrollment = getEnrollmentById(id);
+        if (active == null) {
+            throw new IllegalArgumentException("El estado de la inscripción no puede ser nulo.");
+        }
+        enrollment.setActive(active);
+        enrollmentRepository.save(enrollment);
     }
 
     public ResponseEntity<MessageResponse> deleteEnrollment(Long id) {
@@ -110,10 +122,12 @@ public class EnrollmentService {
 
         if (dto.getCouponCode() != null && !dto.getCouponCode().isEmpty()) {
             coupon = couponService.getCouponByCode(dto.getCouponCode());
+
             if (!coupon.isActive()) {
-                throw new IllegalArgumentException("El cupón no está activo.");
+                throw new IllegalArgumentException("Error al usar cupón.");
             }
             discount = coupon.getDiscountAmount();
+            couponService.updateCouponStatusByCode(coupon.getCode(), false);
         }
 
         BigDecimal finalPrice = coursePrice.subtract(discount);
@@ -127,6 +141,7 @@ public class EnrollmentService {
                 .coupon(coupon)
                 .finalPrice(finalPrice)
                 .enrollmentDate(LocalDateTime.now())
+                .active(false)
                 .build();
     }
 

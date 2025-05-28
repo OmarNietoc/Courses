@@ -13,5 +13,6 @@ public class CouponResponse {
     private Long id;
     private String code;
     private BigDecimal discountAmount;
+    private boolean active;
 
 }

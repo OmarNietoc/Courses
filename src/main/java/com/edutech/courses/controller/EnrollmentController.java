@@ -27,10 +27,10 @@ public class EnrollmentController {
     @GetMapping("/{id}")
     public ResponseEntity<EnrollmentResponse> getEnrollmentById(@PathVariable Long id) {
 
-        return enrollmentService.getEnrollmentById(id);
+        return enrollmentService.getEnrollmentDtoById(id);
     }
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<MessageResponse> createEnrollment(@Valid @RequestBody EnrollmentDto dto) {
         return enrollmentService.createEnrollment(dto);
     }
@@ -44,4 +44,14 @@ public class EnrollmentController {
     public ResponseEntity<MessageResponse> deleteEnrollment(@PathVariable Long id) {
         return enrollmentService.deleteEnrollment(id);
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<?> updateEnrollmentStatus(
+            @PathVariable Long id,
+            @RequestParam boolean active
+    ) {
+        enrollmentService.updateEnrollmentStatusById(id, active);
+        return ResponseEntity.ok(new MessageResponse("Estado de inscripción actualizado exitosamente:" + active));
+    }
+
 }

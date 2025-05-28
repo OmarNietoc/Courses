@@ -1,6 +1,6 @@
 package com.edutech.courses.client;
 
-import com.edutech.courses.dto.UserResponseDto;
+import com.edutech.courses.controller.response.UserResponseDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
