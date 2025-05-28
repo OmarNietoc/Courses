@@ -2,29 +2,23 @@ package com.edutech.courses.service;
 
 import com.edutech.courses.client.UserClient;
 import com.edutech.courses.dto.CourseDto;
-import com.edutech.courses.dto.UserResponseDto;
 import com.edutech.courses.exception.ResourceNotFoundException;
 import com.edutech.courses.model.Category;
 import com.edutech.courses.model.Course;
 import com.edutech.courses.model.Level;
-import com.edutech.courses.repository.CategoryRepository;
 import com.edutech.courses.repository.CourseRepository;
-import com.edutech.courses.repository.LevelRepository;
 import com.edutech.courses.controller.response.MessageResponse;
-import feign.FeignException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +28,7 @@ public class CourseService {
     private final CategoryService categoryService;
     private final LevelService levelService;
     private final UserClient userClient;
-    private final InstructorValidatorService instructorValidatorService;
+    private final UserValidatorService userValidatorService;
 
     public Page<Course> getCourses(Integer page, Integer size, Long categoryId, Long levelId) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
@@ -51,10 +45,6 @@ public class CourseService {
     }
 
 
-    public List<Course> getAllCourses() {
-        return courseRepository.findAll();
-    }
-
     public Course getCourseById(Long id) {
         return courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Curso no encontrado: "+ id ));
@@ -65,7 +55,7 @@ public class CourseService {
         Category category = categoryService.getCategoryById(dto.getCategoryId());
         Level level = levelService.getLevelById(dto.getLevelId());
 
-        instructorValidatorService.validateInstructor(dto.getInstructorId());
+        userValidatorService.validateInstructor(dto.getInstructorId());
 
         Course course = Course.builder()
                 .title(dto.getTitle())
@@ -85,7 +75,9 @@ public class CourseService {
             Course course = getCourseById(id);
             Category category = categoryService.getCategoryById(dto.getCategoryId());
             Level level = levelService.getLevelById(dto.getLevelId());
+            userValidatorService.validateInstructor(dto.getInstructorId());
 
+            course.setInstructorId(dto.getInstructorId());
             course.setTitle(dto.getTitle());
             course.setDescription(dto.getDescription());
             course.setPrice(dto.getPrice());

@@ -9,21 +9,26 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class InstructorValidatorService {
+public class UserValidatorService {
 
     private final UserClient userClient;
 
-    public UserResponseDto validateInstructor(Long instructorId) {
-        UserResponseDto instructor;
+    public UserResponseDto getUserById(Long userId) {
+        UserResponseDto user;
 
         try {
-            instructor = userClient.getUserById(instructorId);
+            user = userClient.getUserById(userId);
         } catch (FeignException.NotFound e) {
-            throw new ResourceNotFoundException("El usuario no existe: " + instructorId);
+            throw new ResourceNotFoundException("El usuario no existe: " + userId);
         } catch (FeignException e) {
-            throw new IllegalArgumentException("Error al validar el instructor: " + e.getMessage());
+            throw new IllegalArgumentException("Error al obtener el usuario: " + e.getMessage());
         }
+        return user;
+    }
 
+    public UserResponseDto validateInstructor(Long instructorId) {
+        UserResponseDto instructor;
+        instructor = getUserById(instructorId);
         validateRoleOfUser(instructor.getRole().getName(), "INSTRUCTOR");
 
         return instructor;

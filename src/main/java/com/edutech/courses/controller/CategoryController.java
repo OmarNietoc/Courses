@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 @RestController
-@RequestMapping("/edutech/categories")
+@RequestMapping("/edutech/courses/categories")
 @RequiredArgsConstructor
 public class CategoryController {
 

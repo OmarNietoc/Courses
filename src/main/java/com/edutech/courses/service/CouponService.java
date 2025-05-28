@@ -1,0 +1,79 @@
+package com.edutech.courses.service;
+
+import com.edutech.courses.exception.ResourceNotFoundException;
+import com.edutech.courses.model.Coupon;
+import com.edutech.courses.model.Enrollment;
+import com.edutech.courses.repository.CouponRepository;
+import com.edutech.courses.controller.response.MessageResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class CouponService {
+
+    private final CouponRepository couponRepository;
+
+    public ResponseEntity<List<Coupon>> getAllCoupons() {
+        List<Coupon> coupons = couponRepository.findAll();
+        if (coupons.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(coupons);
+    }
+
+    public Coupon getCouponById(Long id) {
+
+        return couponRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Cupón no encontrado: " + id));
+    }
+
+    public Coupon getCouponByCode(String code) {
+        return couponRepository.findByCode(code)
+                .orElseThrow(() -> new ResourceNotFoundException("Cupón no encontrado"));
+    }
+
+    public ResponseEntity<Coupon> createCoupon(BigDecimal discountAmount) {
+        String generatedCode = UUID.randomUUID().toString();
+
+        Coupon coupon = Coupon.builder()
+                .code(generatedCode)
+                .discountAmount(discountAmount)
+                .active(true)
+                .build();
+
+        Coupon savedCoupon = couponRepository.save(coupon);
+
+        return ResponseEntity
+                .status(201) // 201 Created
+                .body(savedCoupon);
+    }
+
+    public ResponseEntity<MessageResponse> updateCouponById(Long id, Coupon updatedCoupon) {
+        Coupon coupon = getCouponById(id);
+        coupon.setCode(updatedCoupon.getCode());
+        coupon.setDiscountAmount(updatedCoupon.getDiscountAmount());
+        coupon.setActive(updatedCoupon.isActive());
+        couponRepository.save(coupon);
+        return ResponseEntity.ok(new MessageResponse("Cupón actualizado correctamente."));
+    }
+
+    public ResponseEntity<MessageResponse> deleteCoupon(Long id) {
+        Coupon coupon = getCouponById(id);
+        couponRepository.delete(coupon);
+        return ResponseEntity.ok(new MessageResponse("Cupón eliminado correctamente."));
+    }
+
+    public ResponseEntity<?> updateCouponStatusByCode(String code, boolean active) {
+        Coupon coupon = getCouponByCode(code);
+        coupon.setActive(active);
+        couponRepository.save(coupon);
+        return ResponseEntity.ok(coupon);
+    }
+}

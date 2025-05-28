@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/edutech/levels")
+@RequestMapping("/edutech/courses/levels")
 @RequiredArgsConstructor
 public class LevelController {
 

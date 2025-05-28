@@ -4,6 +4,7 @@ package com.edutech.courses.dto;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -30,7 +31,7 @@ public class CourseDto {
     private Long instructorId;
 
     @PositiveOrZero
-    private Double price;
+    private BigDecimal price;
 
     private List<@Size(min = 1, max = 20) String> tags;
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class Course {
     private Long instructorId; // Se obtiene del microservicio de usuarios
 
     @PositiveOrZero(message = "El precio debe ser 0 o mayor")
-    private Double price;
+    private BigDecimal price;
 
     @ElementCollection
     @CollectionTable(name = "course_tags", joinColumns = @JoinColumn(name = "course_id"))
